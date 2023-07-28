@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const routes=require('./routes/user');
+const treeRoutes=require('./routes/tree-route');
 const app = express();
 
 
@@ -25,7 +26,8 @@ database.once('connected', () => {
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use("/api",routes)
+app.use("/api",routes);
+app.use("/api",treeRoutes);
 app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
 });

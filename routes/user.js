@@ -47,7 +47,7 @@ authRouter.post("/signup", async (req, res) => {
     await user.save();
     ///Issue token upon successful signup
     const token = jwt.sign({ userId: user._id }, "secret-key", {
-      expiresIn: "1hr",
+      expiresIn: "7d",
     });
     res
       .status(201)
@@ -73,7 +73,7 @@ authRouter.post("/login", async (req, res) => {
 
       const user = await User.findOne({institutionName});
       if (!user) {
-        return res.status(401).json({ error: "Invalid credentials(please login with your institution name and password)" });
+        return res.status(401).json({ error: "The institution name provided does not exist" });
       }
 
       const isValidPassword = await bcrypt.compare(password, user.password);
@@ -82,7 +82,7 @@ authRouter.post("/login", async (req, res) => {
       }
 
       const token = jwt.sign({ userId: user._id }, "secret-key", {
-        expiresIn: "1h",
+        expiresIn: "7d",
       });
       return res.status(200).json({message:"User Login Successfully", user, token });
     }
