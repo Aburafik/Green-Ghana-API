@@ -14,7 +14,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
+  accountType: {
+          type: String,
+          default:"individual",
+        },
 
   institutionName: {
     type: String,

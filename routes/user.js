@@ -39,7 +39,7 @@ authRouter.post("/signup", async (req, res) => {
       location,
       digitalAddress,
       password: hashPassword,
-      accountType,
+      accountType: accountType,
       institutionName: defaultinstitutionName,
       contact,
       institutionId: defaultinstitutionId,
@@ -49,31 +49,41 @@ authRouter.post("/signup", async (req, res) => {
     const token = jwt.sign({ userId: user._id }, "secret-key", {
       expiresIn: "7d",
     });
+    const userAddress = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      location: user.location,
+      digitalAddress: user.digitalAddress,
+      accountType: user.accountType,
+      institutionId: user.institutionId,
+      institutionName:user.institutionName
+    };
     res
       .status(201)
-      .json({ message: "User Created successfully", userToken: token, user });
+      .json({ message: "User Created successfully", userAddress,userToken: token,});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-
 authRouter.post("/login", async (req, res) => {
   try {
-    const { accountType, email, contact, password , institutionName} = req.body;
+    const { accountType, email, contact, password, institutionName } = req.body;
 
     // Check if accountType is "institution" and use institutionName for authentication
     if (accountType === "institution") {
-
       if (!institutionName || !password) {
         return res
           .status(400)
           .json({ error: "Institution Name and password are required" });
       }
 
-      const user = await User.findOne({institutionName});
+      const user = await User.findOne({ institutionName });
       if (!user) {
-        return res.status(401).json({ error: "The institution name provided does not exist" });
+        return res
+          .status(401)
+          .json({ error: "The institution name provided does not exist" });
       }
 
       const isValidPassword = await bcrypt.compare(password, user.password);
@@ -84,17 +94,31 @@ authRouter.post("/login", async (req, res) => {
       const token = jwt.sign({ userId: user._id }, "secret-key", {
         expiresIn: "7d",
       });
-      return res.status(200).json({message:"User Login Successfully", user, token });
+      const userAddress = {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          location: user.location,
+          digitalAddress: user.digitalAddress,
+          accountType: user.accountType,
+          institutionId: user.institutionId,
+          institutionName:user.institutionName
+        };
+      return res
+        .status(200)
+        .json({ message: "User Login Successfully", userAddress, token });
     }
 
     // If accountType is not "admin", use contact for authentication
     if (!contact || !password) {
       return res
         .status(400)
-        .json({ error: "PhoneNumber and password are required for individual login" });
+        .json({
+          error: "PhoneNumber and password are required for individual login",
+        });
     }
 
-    const user = await User.findOne({contact});
+    const user = await User.findOne({ contact });
     if (!user) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -107,7 +131,17 @@ authRouter.post("/login", async (req, res) => {
     const token = jwt.sign({ userId: user._id }, "secret-key", {
       expiresIn: "1h",
     });
-    res.status(200).json({ user, token });
+    const userAddress = {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          location: user.location,
+          digitalAddress: user.digitalAddress,
+          accountType: user.accountType,
+          institutionId: user.institutionId,
+          institutionName:user.institutionName
+        };
+    res.status(200).json({ userAddress, token });
   } catch (error) {
     res.status(500).json({ error: "Error logging in" });
   }
