@@ -143,7 +143,7 @@ authRouter.post("/login", async (req, res) => {
           institutionId: user.institutionId,
           institutionName:user.institutionName
         };
-    res.status(200).json({ userAddress, token });
+    res.status(200).json({message: "User Login Successfully", userAddress, token });
   } catch (error) {
     res.status(500).json({ error: "Error logging in" });
   }
