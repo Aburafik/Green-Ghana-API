@@ -57,11 +57,12 @@ authRouter.post("/signup", async (req, res) => {
       digitalAddress: user.digitalAddress,
       accountType: user.accountType,
       institutionId: user.institutionId,
-      institutionName:user.institutionName
+      institutionName:user.institutionName,
+      contact: user.contact
     };
     res
       .status(201)
-      .json({ message: "User Created successfully", userAddress,userToken: token,});
+      .json({ message: "User Created successfully", "userAddress":userAddress,userToken: token,});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -102,7 +103,8 @@ authRouter.post("/login", async (req, res) => {
           digitalAddress: user.digitalAddress,
           accountType: user.accountType,
           institutionId: user.institutionId,
-          institutionName:user.institutionName
+          institutionName:user.institutionName,
+          contact: user.contact
         };
       return res
         .status(200)
