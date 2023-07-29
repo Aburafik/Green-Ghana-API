@@ -108,7 +108,7 @@ authRouter.post("/login", async (req, res) => {
         };
       return res
         .status(200)
-        .json({  "message": "User Loggin successfully", userAddress,"userToken": token,});
+        .json({  message: "User Loggin successfully", userAddress,userToken: token,});
     }
 
     // If accountType is not "admin", use contact for authentication
@@ -143,7 +143,7 @@ authRouter.post("/login", async (req, res) => {
           institutionId: user.institutionId,
           institutionName:user.institutionName
         };
-    res.status(200).json({ "message": "User Loggin successfully", userAddress,"userToken": token,});
+    res.status(200).json({ message: "User Loggin successfully", userAddress,"userToken": token,});
   } catch (error) {
     res.status(500).json({ error: "Error logging in" });
   }
