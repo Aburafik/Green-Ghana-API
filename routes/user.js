@@ -47,7 +47,7 @@ authRouter.post("/signup", async (req, res) => {
     await user.save();
     ///Issue token upon successful signup
     const token = jwt.sign({ userId: user._id }, "secret-key", {
-      expiresIn: "7d",
+      expiresIn: "356d",
     });
     const userAddress = {
       _id: user._id,
@@ -93,7 +93,7 @@ authRouter.post("/login", async (req, res) => {
       }
 
       const token = jwt.sign({ userId: user._id }, "secret-key", {
-        expiresIn: "7d",
+        expiresIn: "365d",
       });
       const userAddress = {
           _id: user._id,
@@ -131,7 +131,7 @@ authRouter.post("/login", async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user._id }, "secret-key", {
-      expiresIn: "1h",
+      expiresIn: "365d",
     });
     const userAddress = {
           _id: user._id,
