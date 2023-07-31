@@ -1,7 +1,23 @@
+const multer = require("multer");
+const cloudnary = require("cloudinary");
+const cloudinary = require("cloudinary").v2;
 const Tree = require("../models/Trees");
 const express = require("express");
 const jwt = require("jsonwebtoken");
-// const app= express();
+
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+cloudinary.config({
+  cloud_name: "citizen",
+  api_key: "373369271762559",
+  api_secret: "xe1Y1WOi7P7bUFPH3riVzl0HGGU",
+});
+
+// function uploadfolder(folder){
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+});
+// };
+const upload = multer({ storage: storage });
 const treeRouter = express.Router();
 
 ///Middleware to verify token
@@ -19,23 +35,36 @@ const verifyToken = (req, res, next) => {
   });
 };
 ///Register a new Tree
-treeRouter.post("/register/tree", verifyToken, async (req, res) => {
-  try {
-    const { treeName, treeHeight, locationPlanted, datePlanted } = req.body;
-    const owner = req.userId;
-    const tree = await Tree({
-      treeName:treeName[0].toUpperCase()+treeName.slice(1),
-      treeHeight,
-      locationPlanted,
-      datePlanted,
-      owner,
-    });
-    await tree.save();
-    res.status(201).json({ message: "Tree registered successfully", tree });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+treeRouter.post(
+  "/register/tree",
+  verifyToken,
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      const { treeName, treeHeight, locationPlanted, datePlanted, image } =
+        req.body;
+
+      const result = await cloudnary.uploader.upload(req.file.path, {
+        folder: "TREES",
+        use_filename: true,
+      });
+      const imageUrl = result.secure_url;
+      const owner = req.userId;
+      const tree = await Tree({
+        treeName: treeName[0].toUpperCase() + treeName.slice(1),
+        treeHeight,
+        locationPlanted,
+        datePlanted,
+        image: imageUrl,
+        owner,
+      });
+      await tree.save();
+      res.status(201).json({ message: "Tree registered successfully", tree });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
   }
-});
+);
 
 // View all trees
 treeRouter.get("/trees", verifyToken, async (req, res) => {
@@ -54,13 +83,17 @@ treeRouter.get("/trees/:ownerId", verifyToken, async (req, res) => {
     const trees = await Tree.find({ owner: ownerId }).populate("owner", "name");
     res.status(200).json(trees);
   } catch (error) {
-    res.status(500).json({ error: "Error filtering trees"});
+    res.status(500).json({ error: "Error filtering trees" });
   }
 });
 
 treeRouter.get("/filter/:search", verifyToken, async (req, res) => {
   try {
-    const filter = await Tree.find({ treeName: { $regex: req.params.search[0].toUpperCase()+ req.params.search.slice(1)} }).populate('owner', "name");
+    const filter = await Tree.find({
+      treeName: {
+        $regex: req.params.search[0].toUpperCase() + req.params.search.slice(1),
+      },
+    }).populate("owner", "name");
     res.status(200).json(filter);
   } catch (error) {
     res.status(500).json({ error: "Error filtering tree by name" });
