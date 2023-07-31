@@ -60,7 +60,7 @@ treeRouter.get("/trees/:ownerId", verifyToken, async (req, res) => {
 
 treeRouter.get("/filter/:search", verifyToken, async (req, res) => {
   try {
-    const filter = await Tree.find({ treeName: { $regex: req.params.search[0].toUpperCase()+ req.params.search.slice(1)} });
+    const filter = await Tree.find({ treeName: { $regex: req.params.search[0].toUpperCase()+ req.params.search.slice(1)} }).populate('owner', "name");
     res.status(200).json(filter);
   } catch (error) {
     res.status(500).json({ error: "Error filtering tree by name" });
