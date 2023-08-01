@@ -5,6 +5,19 @@ const jwt = require("jsonwebtoken");
 // const app= express();
 const authRouter = express.Router();
 
+const verifyToken = (req, res, next) => {
+          const token = req.headers.authorization?.split(" ")[1];
+          if (!token) {
+            return res.status(401).json({ error: "Unauthorized" });
+          }
+          jwt.verify(token, "secret-key", (err, decodedToken) => {
+            if (err) {
+              return res.status(401).json({ error: "Unauthorized" });
+            }
+            req.userId = decodedToken.userId;
+            next();
+          });
+        };
 authRouter.post("/signup", async (req, res) => {
   try {
     const {
@@ -148,5 +161,26 @@ authRouter.post("/login", async (req, res) => {
     res.status(500).json({ error: "Error logging in" });
   }
 });
+
+
+
+
+///Get User Profile
+
+authRouter.get('/user/:id',verifyToken, async(req,res)=>{
+
+        try {
+          const userID=req.params.id;
+
+          const user = await User.findById(userID);
+
+          
+                    res.status(200).json({message:"User profile retrieved successfully", user})
+
+        } catch (error) {
+          res.status(500).json({error:"Error getting user"})
+        }
+})
+
 
 module.exports = authRouter;
